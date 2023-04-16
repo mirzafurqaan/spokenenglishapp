@@ -1,12 +1,34 @@
 import React, {useEffect} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Splash = ({navigation}) => {
   useEffect(() => {
-    setTimeout(() => {
-      // Redirect to Login screen after 2 seconds
-      navigation.replace('Login');
-    }, 2000);
+    const checkUserData = async () => {
+      try {
+        // Check if userdata is stored in asyncstorage
+        const userData = await AsyncStorage.getItem('userData');
+        console.log({userData});
+        if (userData) {
+          const user = JSON.parse(userData);
+          // If user is admin, navigate to Dashboard
+          if (user.isAdmin) {
+            navigation.replace('Dashboard');
+          } else {
+            // If user is not admin, navigate to Home
+            navigation.replace('Home');
+          }
+        } else {
+          // If userdata is not stored, navigate to Login
+          navigation.replace('Login');
+        }
+      } catch (error) {
+        console.error(error);
+        // If error occurs, navigate to Login
+        navigation.replace('Login');
+      }
+    };
+    checkUserData();
   }, []);
 
   return (
